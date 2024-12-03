@@ -1,0 +1,121 @@
+@charset "UTF-8";@charset "UTF-8";
+
+body{
+	margin:auto;
+}
+main{
+	max-width: 90%;
+	margin: auto;
+	
+}
+
+
+/*機能タイトル(h1)*/
+.title{
+	text-align: center;
+	margin: 30px;
+}
+
+/*共通ボタン*/
+.button {
+     	  
+          width: 50%;
+          padding: 12px;
+          color: white;
+/*          border: none;*/
+          border-radius: 30px;
+          cursor: pointer;
+          font-size: 16px;
+          margin: 20px 0;
+          text-decoration: none;
+        }
+ 
+
+/*確定ボタン(オレンジ)*/
+.confirmed-button{
+	background-color: #f4811e;
+}
+.confirmed-button:hover {
+      background-color: #e67300;
+    }
+    
+
+
+	
+/*ヘッダー*/
+header{
+	background-color: #E5F0F8;
+	width: 100%;
+}
+.header-content{
+	display: flex;
+	justify-content: center; /* 水平方向に中央揃え */
+	align-items: center; /* 垂直方向も中央揃え */
+}
+.header-content img{
+	margin: auto 0px;
+}
+nav{
+	flex-grow: 1; /* 幅を調整しやすくする */
+	text-align: center; /* リンクリストを中央揃え */
+}
+
+.menu-lists{
+	display: inline-flex; /* nav 内の ul をインラインフレックスにする */
+	  justify-content: center; /* メニューリスト全体を中央揃え */
+	  padding: 0;
+	  margin: 0;
+	  list-style: none;
+}
+
+.menu-list {
+	position: relative;
+	 height: 60px;
+	 display: flex;
+	 justify-content: center;
+	 align-items: center; /* アイコンとリンクを垂直方向に中央揃え */
+	 padding: 0 50px;
+	 transition: all 0.3s;
+}
+
+.menu-list:hover {
+  background-color: #2e75b6;
+}
+
+.menu-list a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-decoration: none;
+  color: #2e75b6;
+  font-size: 15px;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-left: 10px;
+}
+
+.menu-list:hover a {
+  color: #fff;
+}
+.menu-list:hover img {
+    filter: brightness(0) invert(1);
+    transition: filter 0.3s ease;
+}
+
+
+.header-lists{
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+.header-list {
+  transition: all 0.3s;
+  list-style: none;
+  margin:auto 10px;
+}
+.header-list:hover img {
+	filter: brightness(0.3);
+	transition: filter 0.3s ease;
+}
