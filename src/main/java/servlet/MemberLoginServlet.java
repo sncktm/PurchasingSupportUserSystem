@@ -40,7 +40,7 @@ public class MemberLoginServlet extends HttpServlet {
 		
 		if(member != null) {
 			HttpSession session = request.getSession();
-			session.setAttribute("loginmMmber", member);
+			session.setAttribute("loginMember", member);
 			RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/LoginCompletion.jsp");
 			dispatcher.forward(request, response);
 		}else {

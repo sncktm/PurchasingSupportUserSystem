@@ -1,12 +1,20 @@
 @charset "UTF-8";@charset "UTF-8";
 
+:root{
+	--primary-color: #2e75b6;
+	--secondary-color: #E5F0F8;
+	
+	--decision-color: #f4811e;
+}
+
 body{
 	margin:auto;
+	background-color: #f7f7f7;
+	color: #333;
 }
 main{
 	max-width: 90%;
 	margin: auto;
-	
 }
 
 
@@ -33,7 +41,7 @@ main{
 
 /*確定ボタン(オレンジ)*/
 .confirmed-button{
-	background-color: #f4811e;
+	background-color: var(--decision-color);
 }
 .confirmed-button:hover {
       background-color: #e67300;
@@ -44,25 +52,27 @@ main{
 	
 /*ヘッダー*/
 header{
-	background-color: #E5F0F8;
+	background-color: #fff;
 	width: 100%;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	border-bottom: 2px solid var(--primary-color);
 }
 .header-content{
 	display: flex;
-	justify-content: center; /* 水平方向に中央揃え */
-	align-items: center; /* 垂直方向も中央揃え */
+	justify-content: center;
+	align-items: center;
 }
 .header-content img{
 	margin: auto 0px;
 }
 nav{
-	flex-grow: 1; /* 幅を調整しやすくする */
-	text-align: center; /* リンクリストを中央揃え */
+	flex-grow: 1;
+	text-align: center;
 }
 
 .menu-lists{
-	display: inline-flex; /* nav 内の ul をインラインフレックスにする */
-	  justify-content: center; /* メニューリスト全体を中央揃え */
+	display: inline-flex; 
+	  justify-content: center;
 	  padding: 0;
 	  margin: 0;
 	  list-style: none;
@@ -73,13 +83,13 @@ nav{
 	 height: 60px;
 	 display: flex;
 	 justify-content: center;
-	 align-items: center; /* アイコンとリンクを垂直方向に中央揃え */
+	 align-items: center;
 	 padding: 0 50px;
 	 transition: all 0.3s;
 }
 
 .menu-list:hover {
-  background-color: #2e75b6;
+  background-color: var(--primary-color);
 }
 
 .menu-list a {
@@ -88,7 +98,7 @@ nav{
   align-items: center;
   height: 100%;
   text-decoration: none;
-  color: #2e75b6;
+  color:   var(--primary-color);
   font-size: 15px;
   font-weight: 600;
   transition: all 0.3s;

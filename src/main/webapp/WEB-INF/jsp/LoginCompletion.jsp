@@ -2,7 +2,7 @@
     pageEncoding="UTF-8"%>
     <%@ page import= "model.MemberBeans" %>
     
-    <% MemberBeans loginmMmber = (MemberBeans) session.getAttribute("loginmMmber"); %>
+    <% MemberBeans loginmMmber = (MemberBeans) session.getAttribute("loginMember"); %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,7 +41,7 @@
             </li>
             <li class="menu-list">
             	<img alt="" src="img/mypageIcon.png" width="40px" height="40px">
-                <a href="#">マイページ</a>
+                <a href="MyPageServlet">マイページ</a>
             </li>
             <li class="menu-list">
             	<img alt="" src="img/pointIcon.png" width="40px" height="40px">

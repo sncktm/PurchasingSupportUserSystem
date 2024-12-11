@@ -36,12 +36,15 @@ public class LoginConnectionDao {
 
 			if(rs.next()) {
 				member.setMember_no(rs.getString("MEMBER_NO"));
-					
+				member.setFamily_name(rs.getString("Family_name"));
+				member.setFirst_name(rs.getString("First_name"));			
 			} else {
 				member = null;
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
+			System.out.println("1");
 			return null;
 		}
 		return member;
