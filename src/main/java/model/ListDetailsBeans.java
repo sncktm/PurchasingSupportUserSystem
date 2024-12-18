@@ -14,6 +14,12 @@ public class ListDetailsBeans {
         
        
     }
+    
+    public ListDetailsBeans(String Sales_No) {
+        this.Sales_No = Sales_No;
+        
+       
+    }
 
 //    public ListdetailsBeans() {
 //		// TODO 自動生成されたコンストラクター・スタブ

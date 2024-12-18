@@ -129,7 +129,7 @@
 
 	<ul class="mypage-menus">
        <li>
-           <a href="#">登録リスト閲覧</a>
+           <a href="ListViewServlet">登録リスト閲覧</a>
        </li>
     	<li>
            <a href="MemberInformationViewServlet">会員情報確認</a>
