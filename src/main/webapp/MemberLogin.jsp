@@ -21,7 +21,8 @@ body{
 	}
 	h1{
 		text-align: center;
-        margin-bottom: 20px;
+        margin-b
+        ottom: 20px;
 	}
 	.group {
           margin-bottom: 15px;

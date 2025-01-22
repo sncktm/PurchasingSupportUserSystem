@@ -37,7 +37,11 @@
             </li>
             <li class="menu-list">
             	<img alt="" src="img/searchIcon.png" width="40px" height="40px">
-                <a href="#">検索</a>
+                <a href="goods">検索</a>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/searchIcon.png" width="40px" height="40px">
+                <a href="StoreSearch">検索</a>
             </li>
             <li class="menu-list">
             	<img alt="" src="img/mypageIcon.png" width="40px" height="40px">

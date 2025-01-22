@@ -26,3 +26,5 @@ public class GoodsArrayBeans implements Serializable {
         this.goodsArray = goodsArray;
     }
 }
+
+

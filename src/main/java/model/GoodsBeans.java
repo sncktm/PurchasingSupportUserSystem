@@ -22,6 +22,8 @@ public class GoodsBeans implements Serializable {
     private Time Opening_Time;        // 開店時間
     private Time Closing_Time;        // 閉店時間
     private String coordinate;        // 座標
+    private double Latitude; // 緯度を追加
+    private double Longitude; // 経度を追加
 
     // コンストラクタ（全フィールド初期化）
     public GoodsBeans(String JAN_code, String Goods_Name, String Goods_Maker, String Classification,
@@ -88,5 +90,21 @@ public class GoodsBeans implements Serializable {
 
     public String getCoordinate() { return coordinate; }
     public void setCoordinate(String coordinate) { this.coordinate = coordinate; }
+
+	public double getLatitude() {
+		return Latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		Latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return Longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		Longitude = longitude;
+	}
 }
 

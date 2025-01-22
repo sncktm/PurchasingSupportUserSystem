@@ -1,12 +1,12 @@
 @charset "UTF-8";@charset "UTF-8";
-
+ 
 :root{
 	--primary-color: #2e75b6;
 	--secondary-color: #E5F0F8;
 	
 	--decision-color: #f4811e;
 }
-
+ 
 body{
 	margin:auto;
 	background-color: #f7f7f7;
@@ -16,14 +16,14 @@ main{
 	max-width: 90%;
 	margin: auto;
 }
-
-
+ 
+ 
 /*機能タイトル(h1)*/
 .title{
 	text-align: center;
 	margin: 30px;
 }
-
+ 
 /*共通ボタン*/
 .button {
      	  
@@ -38,7 +38,7 @@ main{
           text-decoration: none;
         }
  
-
+ 
 /*確定ボタン(オレンジ)*/
 .confirmed-button{
 	background-color: var(--decision-color);
@@ -47,8 +47,8 @@ main{
       background-color: #e67300;
     }
     
-
-
+ 
+ 
 	
 /*ヘッダー*/
 header{
@@ -69,15 +69,15 @@ nav{
 	flex-grow: 1;
 	text-align: center;
 }
-
+ 
 .menu-lists{
-	display: inline-flex; 
+	display: inline-flex;
 	  justify-content: center;
 	  padding: 0;
 	  margin: 0;
 	  list-style: none;
 }
-
+ 
 .menu-list {
 	position: relative;
 	 height: 60px;
@@ -87,11 +87,11 @@ nav{
 	 padding: 0 50px;
 	 transition: all 0.3s;
 }
-
+ 
 .menu-list:hover {
   background-color: var(--primary-color);
 }
-
+ 
 .menu-list a {
   display: flex;
   justify-content: center;
@@ -104,7 +104,7 @@ nav{
   transition: all 0.3s;
   margin-left: 10px;
 }
-
+ 
 .menu-list:hover a {
   color: #fff;
 }
@@ -112,14 +112,14 @@ nav{
     filter: brightness(0) invert(1);
     transition: filter 0.3s ease;
 }
-
-
+ 
+ 
 .header-lists{
   display: flex;
   padding: 0;
   margin: 0;
 }
-
+ 
 .header-list {
   transition: all 0.3s;
   list-style: none;
