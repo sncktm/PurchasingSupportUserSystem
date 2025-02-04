@@ -5,15 +5,16 @@
 <%@ page import="java.util.Collections" %>
 <%@ page import="java.util.Comparator" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品検索</title>
-    <link rel="stylesheet" href="key1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="css/style.css?v=1.0">
-    <script src="key2"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8pfuMfdXssPxTbdqtaiKpqN7IvYR5Abo&libraries=places"></script>
     <script>
         let map;
         let userMarker;
@@ -25,105 +26,14 @@
             const defaultLocation = { lat: 35.6895, lng: 139.6917 };
             map = new google.maps.Map(document.getElementById("map"), {
                 center: defaultLocation,
-                zoom: 14,
-                styles: [
-                    {
-                        "featureType": "all",
-                        "elementType": "geometry.fill",
-                        "stylers": [{"weight": "2.00"}]
-                    },
-                    {
-                        "featureType": "all",
-                        "elementType": "geometry.stroke",
-                        "stylers": [{"color": "#9c9c9c"}]
-                    },
-                    {
-                        "featureType": "all",
-                        "elementType": "labels.text",
-                        "stylers": [{"visibility": "on"}]
-                    },
-                    {
-                        "featureType": "landscape",
-                        "elementType": "all",
-                        "stylers": [{"color": "#f2f2f2"}]
-                    },
-                    {
-                        "featureType": "landscape",
-                        "elementType": "geometry.fill",
-                        "stylers": [{"color": "#ffffff"}]
-                    },
-                    {
-                        "featureType": "landscape.man_made",
-                        "elementType": "geometry.fill",
-                        "stylers": [{"color": "#ffffff"}]
-                    },
-                    {
-                        "featureType": "poi",
-                        "elementType": "all",
-                        "stylers": [{"visibility": "off"}]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "all",
-                        "stylers": [{"saturation": -100}, {"lightness": 45}]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "geometry.fill",
-                        "stylers": [{"color": "#eeeeee"}]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#7b7b7b"}]
-                    },
-                    {
-                        "featureType": "road",
-                        "elementType": "labels.text.stroke",
-                        "stylers": [{"color": "#ffffff"}]
-                    },
-                    {
-                        "featureType": "road.highway",
-                        "elementType": "all",
-                        "stylers": [{"visibility": "simplified"}]
-                    },
-                    {
-                        "featureType": "road.arterial",
-                        "elementType": "labels.icon",
-                        "stylers": [{"visibility": "off"}]
-                    },
-                    {
-                        "featureType": "transit",
-                        "elementType": "all",
-                        "stylers": [{"visibility": "off"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "all",
-                        "stylers": [{"color": "#46bcec"}, {"visibility": "on"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "geometry.fill",
-                        "stylers": [{"color": "#c8d7d4"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "labels.text.fill",
-                        "stylers": [{"color": "#070707"}]
-                    },
-                    {
-                        "featureType": "water",
-                        "elementType": "labels.text.stroke",
-                        "stylers": [{"color": "#ffffff"}]
-                    }
-                ]
+                zoom: 12,
+                
             });
 
             distanceMatrix = new google.maps.DistanceMatrixService();
         }
 
-        function updateDetails(name, maker, classification, price, janCode, storeName, status, statusClass, latitude, longitude, image) {
+        function updateDetails(name, maker, classification, price, janCode, storeName, status, statusClass, latitude, longitude, image, timeSaleEndTime) {
             document.getElementById("goods-list").classList.add("minimized");
             document.getElementById("details-container").style.display = "block";
 
@@ -131,7 +41,10 @@
             document.getElementById("detail-name").textContent = name;
             document.getElementById("detail-maker").textContent = maker;
             document.getElementById("detail-classification").textContent = classification;
-            document.getElementById("detail-price").textContent = price + "円";
+        	document.getElementById("detail-price").innerHTML = price.isTimeSale ?
+                    `<span class="time-sale">タイムセール中!</span><br>
+     <span class="original-price">${price.original}円</span> ${price.timeSale}円` :
+     `${price.original}円`;
             document.getElementById("detail-jan").textContent = janCode;
             document.getElementById("detail-store").textContent = storeName;
 
@@ -146,7 +59,7 @@
             storeMarker = new google.maps.Marker({
                 position: storeLocation,
                 map: map,
-                label: "店舗",
+                title: storeName
             });
 
             if (navigator.geolocation) {
@@ -161,16 +74,26 @@
                     userMarker = new google.maps.Marker({
                         position: userLocation,
                         map: map,
-                        label: "現在地",
-                    });
+                    	title: "現在地",
+                    });	icon: {
+                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                    }
+                                        });
                     fitBounds(userLocation, storeLocation);
                 });
             } else {
                 fitBounds(null, storeLocation);
             }
 
-            map.setCenter(storeLocation);
-            map.setZoom(15);
+         // タイムセール終了時間の表示
+         const timeSaleEndElement = document.getElementById("detail-time-sale-end");
+         if (price.isTimeSale && timeSaleEndTime) {
+        	 timeSaleEndElement.style.display = "block";
+        	 timeSaleEndElement.querySelector("span").textContent = timeSaleEndTime;
+         } else {
+        	 timeSaleEndElement.style.display = "none";
+         }
+         
         }
 
         function fitBounds(userLocation, storeLocation) {
@@ -254,6 +177,10 @@
                 calculateDistances(); // 距離計算と並び替えを行う
             } else if (sortOption === 'price-asc') {
                 sortByPrice();
+            }else if (sortOption === 'name-asc') {
+            	sortByNameAsc();
+            } else if (sortOption === 'name-desc') {
+            sortByNameDesc();
             }
         }
 
@@ -268,14 +195,39 @@
             goods.forEach(item => goodsList.appendChild(item));
         }
 
+
+        function sortByNameAsc() {
+        	const goodsList = document.querySelector('.goods-grid');
+        	const goods = Array.from(goodsList.children);
+        	goods.sort((a, b) => {
+        	const nameA = a.querySelector('h3').textContent;
+        	const nameB = b.querySelector('h3').textContent;
+        	return nameA.localeCompare(nameB);
+        	});
+        	goods.forEach(item => goodsList.appendChild(item));
+        	}
+        	function sortByNameDesc() {
+        	const goodsList = document.querySelector('.goods-grid');
+        	const goods = Array.from(goodsList.children);
+        	goods.sort((a, b) => {
+        	const nameA = a.querySelector('h3').textContent;
+        	const nameB = b.querySelector('h3').textContent;
+        	return nameB.localeCompare(nameA);
+        	});
+        	goods.forEach(item => goodsList.appendChild(item));
+        	}
+        			
+        
         // ページ読み込み時に現在地を取得
         window.onload = function() {
             initMap();
             getUserLocation();
             sortGoods(); // 並び替えを適用
         };
+
+	
+</script>
         
-    </script>
 
     <style>
         body {
@@ -317,8 +269,8 @@
         }
         .goods-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
             justify-content: center;
         }
         .goods-grid.minimized {
@@ -328,7 +280,7 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 15px;
+            padding: 10px;
             cursor: pointer;
             transition: transform 0.3s ease;
         }
@@ -337,7 +289,7 @@
         }
         .goods img {
             width: 100%;
-            height: 150px;
+            height: 100px;
             object-fit: cover;
             border-radius: 4px;
         }
@@ -378,6 +330,37 @@
             background-color: #f5f5f5;
             color: #212121;
         }
+        .time-sale {
+            color: red;
+            font-weight: bold;
+        }
+        .original-price {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .goods h3 {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .goods .store-name {
+            font-size: 12px;
+            color: #666;
+        }
+        .goods .price {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .goods .status {
+            font-size: 12px;
+            padding: 2px 5px;
+        }
+        .goods .distance {
+            font-size: 12px;
+        }
+        .goods .time-sale-end {
+            font-size: 12px;
+            color: #d32f2f;
+        }
         @media (min-width: 768px) {
             .content-wrapper {
                 display: flex;
@@ -389,6 +372,7 @@
             #details-container {
                 flex: 1;
             }
+        	
         }
     </style>
 </head>
@@ -410,22 +394,34 @@
 <div class="container">
     <h1>商品検索</h1>
 
-    <form action="goods" method="get" class="search-form">
+    <form id="searchForm" action="goods" method="get" class="search-form">
         <input type="text" name="keyword" placeholder="商品名を検索" value="${param.keyword}">
         <label>
             <input type="checkbox" name="showOnlyAvailable" value="true" 
                    ${param.showOnlyAvailable == 'true' ? 'checked' : ''}> 販売中のみ表示
         </label>
+        <label>
+            <input type="checkbox" name="showOnlySale" value="true" 
+                   ${param.showOnlySale == 'true' ? 'checked' : ''}> セール中のみ表示
+        </label>
+        <input type="hidden" name="sortOption" value="${param.sortOption}">
         <button type="submit">検索</button>
     </form>
 
-    <div class="sort-options">
-        <label for="sort-select">並び替え:</label>
-        <select id="sort-select" name="sortOption" onchange="sortGoods()">
-            <option value="distance-asc" ${param.sortOption == 'distance-asc' ? 'selected' : ''}>現在地から近い順</option>
-            <option value="price-asc" ${param.sortOption == 'price-asc' ? 'selected' : ''}>価格が安い順</option>
-        </select>
-    </div>
+    <form id="sortForm" action="goods" method="get">
+        <input type="hidden" name="keyword" value="${param.keyword}">
+        <input type="hidden" name="showOnlyAvailable" value="${param.showOnlyAvailable}">
+        <input type="hidden" name="showOnlySale" value="${param.showOnlySale}">
+        <div class="sort-options">
+            <label for="sort-select">並び替え:</label>
+            <select id="sort-select" name="sortOption" onchange="this.form.submit()">
+                <option value="distance-asc" ${param.sortOption == 'distance-asc' ? 'selected' : ''}>現在地から近い順</option>
+                <option value="price-asc" ${param.sortOption == 'price-asc' ? 'selected' : ''}>価格が安い順</option>
+                <option value="name-asc" ${param.sortOption == 'name-asc' ? 'selected' : ''}>商品名 昇順</option>
+                <option value="name-desc" ${param.sortOption == 'name-desc' ? 'selected' : ''}>商品名 降順</option>
+            </select>
+        </div>
+    </form>
 
     <div class="content-wrapper">
         <div id="goods-list">
@@ -450,7 +446,7 @@
                                         java.time.LocalTime now = java.time.LocalTime.now();
                                         if (now.isAfter(goods.getOpening_Time().toLocalTime()) &&
                                             now.isBefore(goods.getClosing_Time().toLocalTime())) {
-                                            status = "販売中";
+                                            status = goods.isTimeSale() ? "タイムセール中" : "販売中";
                                             statusClass = "red";
                                         } else {
                                             status = "店舗閉店中";
@@ -461,26 +457,44 @@
                                     status = "販売停止";
                                     statusClass = "gray";
                                 }
+
+                                String timeSaleEndTime = "";
+                                if (goods.isTimeSale() && goods.getTimeSaleEndTime() != null) {
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+                                    timeSaleEndTime = goods.getTimeSaleEndTime().format(formatter);
+                                }
                 %>
                 <div class="goods" onclick="updateDetails(
                         '<%= goods.getGoods_Name() %>',
                         '<%= goods.getGoods_Maker() %>',
                         '<%= goods.getClassification() %>',
-                        '<%= goods.getSales_Price() %>',
+                        { original: <%= goods.getSales_Price() %>, timeSale: <%= goods.getTimeSalePrice() %>, isTimeSale: <%= goods.isTimeSale() %> },
                         '<%= goods.getJAN_code() %>',
                         '<%= goods.getStore_Name() %>',
                         '<%= status %>',
                         '<%= statusClass %>',
                         <%= goods.getLatitude() %>,
                         <%= goods.getLongitude() %>,
-                        '<%= goods.getImage() %>'
+                        '<%= goods.getImage() %>',
+                        '<%= timeSaleEndTime %>'
                     )">
                     <img src="<%= goods.getImage() %>" alt="<%= goods.getGoods_Name() %>">
                     <h3><%= goods.getGoods_Name() %></h3>
                     <p class="store-name"><%= goods.getStore_Name() %></p>
-                    <p class="price"><%= goods.getSales_Price() %>円</p>
+                    <p class="price">
+                        <% if (goods.isTimeSale()) { %>
+                            <span class="time-sale">タイムセール中!</span><br>
+                            <span class="original-price"><%= goods.getSales_Price() %>円</span>
+                            <%= goods.getTimeSalePrice() %>円
+                        <% } else { %>
+                            <%= goods.getSales_Price() %>円
+                        <% } %>
+                    </p>
                     <p class="status <%= statusClass %>"><%= status %></p>
                     <p class="distance" data-lat="<%= goods.getLatitude() %>" data-lon="<%= goods.getLongitude() %>">距離計算中...</p>
+                    <% if (goods.isTimeSale()) { %>
+                        <p class="time-sale-end">セール終了: <%= timeSaleEndTime %></p>
+                    <% } %>
                 </div>
                 <%
                             }
@@ -495,6 +509,7 @@
                 <div id="map"></div>
             </div>
 
+
             <div id="details">
                 <img id="detail-image" src="/placeholder.svg" alt="商品画像" style="width: 100%; max-width: 300px; height: auto; margin-bottom: 20px;">
                 <p><strong>商品名:</strong> <span id="detail-name"></span></p>
@@ -504,10 +519,87 @@
                 <p><strong>JANコード:</strong> <span id="detail-jan"></span></p>
                 <p><strong>店舗名:</strong> <span id="detail-store"></span></p>
                 <p><strong>販売状態:</strong> <span id="detail-status" class="status"></span></p>
-            </div>
+                <p id="detail-time-sale-end" style="display: none;"><strong>セール終了:</strong> <span></span></p>
+                <button class="register-button" id="register-button">リストに登録</button>
+                
+                <div class="list-register" id="list-register">
+				    <h3>リスト</h3>
+				    <ul id="list-container">
+				        <!-- ここにリスト-->
+				    </ul>
+				    <button onclick="closePopup()">閉じる</button>
+				</div>
+				                
+             </div>
         </div>
+        
     </div>
 </div>
+<script>
+
+//ーーーーここから先リスト登録関連ーーーー
+const registerButton = document.getElementById('register-button');
+const listRegister = document.getElementById('list-register');
+const listContainer = document.getElementById('list-container');
+
+
+//リストに登録ボタンがクリックされた場合
+registerButton.addEventListener('click', () => {
+	fetch('ListSelectServlet')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);  // データの中身を確認
+
+        listContainer.innerHTML = ''; // 既存のリストをクリア
+
+        // 取得したデータを元に <li> を追加
+        data.forEach(item => {
+            console.log(item.List_Name); // 各アイテムのリスト名を確認
+            const listItem = document.createElement('li'); // <li> 要素を作成
+            listItem.textContent = item.List_Name; // List_Nameを表示
+            listItem.setAttribute('data-list-no', item.List_No); // List_No をデータ属性に設定
+            listContainer.appendChild(listItem); // listContainerに追加
+
+            // listItemがクリックされた時に送信する処理
+            listItem.addEventListener('click', () => {
+                const listNo = listItem.getAttribute('data-list-no');
+                console.log('選択されたList_No:', listNo);
+                sendListNoToServer(listNo); // サーバーにList_Noを送信
+            });
+        });
+        listRegister.style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+
+});
+
+
+function closePopup() {
+    listRegister.style.display = 'none';
+}
+
+
+//リスト登録
+function sendListNoToServer(listNo) {
+    fetch('MylistRegisteredServlet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain; charset=UTF-8'
+        },
+        body: listNo // 文字列をそのまま送信
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log('サーバーからのレスポンス:', data);
+        console.log("登録したよん");
+    })
+    .catch(error => {
+        console.error('Error sending List_No:', error);
+    });
+}
+</script>
 </body>
 </html>
 

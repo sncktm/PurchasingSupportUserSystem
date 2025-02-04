@@ -8,9 +8,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店舗検索</title>
-    <link rel="stylesheet" href="key3">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="css/style.css?v=1.0">
-    <script src="key4"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8pfuMfdXssPxTbdqtaiKpqN7IvYR5Abo&libraries=places"></script>
     <script>
         let map;
         let markers = [];
