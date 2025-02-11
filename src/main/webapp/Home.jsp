@@ -13,19 +13,17 @@
 <%@ page import="model.AdvertisementManagementBeans" %>
 <%@ page import="model.TimesaleBeans" %>
 <%@ page import="model.TimesaleGoodsBeans" %>
+ <%
+    	String advertisementPath = (String) session.getAttribute("advertisementPath");
+       
+    %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>広告一覧</title>
-    
+    <link rel="stylesheet" href="css/style.css?v=1.0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -218,7 +216,6 @@
 </div>
 </header>
     <div class="container">
-        <h1>広告一覧</h1>
 
         <div class="tab-container">
             <div class="tab-buttons">
@@ -238,11 +235,10 @@
                             for(AdCommodityBeans ad : largeStoreAds) {
                         %>
                             <div class="card">
-                                <img src="${pageContext.request.contextPath}/<%= ad.getAdvertisement_Image() %>" 
-                                     alt="<%= ad.getAdvertisement_title() %>"
-                                     onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/images/default_ad.jpg';">
+                            <% System.out.println("ぱす：" + advertisementPath + ad.getAdvertisement_Image()); %>
+                                <img src="http://localhost:8080/PurchasingSupportStoreSystem/store-advertisement?file=<%= ad.getAdvertisement_Image() %>" alt="広告画像">
+                                     
                                 <h3><%= ad.getAdvertisement_title() %></h3>
-                                <p><%= ad.getAdvertisement_Explanation() %></p>
                             </div>
                         <%
                             }
@@ -259,11 +255,9 @@
                         for(AdCommodityBeans ad : mediumStoreAds) {
                     %>
                         <div class="card">
-                            <img src="${pageContext.request.contextPath}/<%= ad.getAdvertisement_Image() %>" 
-                                 alt="<%= ad.getAdvertisement_title() %>"
-                                 onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/images/default_ad.jpg';">
+                           <img src="http://localhost:8080/PurchasingSupportStoreSystem/store-advertisement?file=<%= ad.getAdvertisement_Image() %>" alt="広告画像">
+
                             <h3><%= ad.getAdvertisement_title() %></h3>
-                            <p><%= ad.getAdvertisement_Explanation() %></p>
                         </div>
                     <%
                         }
@@ -286,11 +280,8 @@
                             for(AdCommodityBeans ad : largeProductAds) {
                         %>
                             <div class="card">
-                                <img src="${pageContext.request.contextPath}/<%= ad.getAdvertisement_Image() %>" 
-                                     alt="<%= ad.getAdvertisement_title() %>"
-                                     onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/images/default_product.jpg';">
+                                <img src="http://localhost:8080/PurchasingSupportStoreSystem/store-advertisement?file=<%= ad.getAdvertisement_Image() %>" alt="広告画像">
                                 <h3><%= ad.getAdvertisement_title() %></h3>
-                                <p><%= ad.getAdvertisement_Explanation() %></p>
                                 <%
                                 if(productDetails != null && productDetails.get(ad.getAdvertisement_No()) != null) {
                                 %>
@@ -325,11 +316,9 @@
                         for(AdCommodityBeans ad : mediumProductAds) {
                     %>
                         <div class="card">
-                            <img src="${pageContext.request.contextPath}/<%= ad.getAdvertisement_Image() %>" 
-                                 alt="<%= ad.getAdvertisement_title() %>"
-                                 onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/images/default_product.jpg';">
+                            <img src="http://localhost:8080/PurchasingSupportStoreSystem/store-advertisement?file=<%= ad.getAdvertisement_Image() %>" alt="広告画像">
+
                             <h3><%= ad.getAdvertisement_title() %></h3>
-                            <p><%= ad.getAdvertisement_Explanation() %></p>
                             <%
                             if(productDetails != null && productDetails.get(ad.getAdvertisement_No()) != null) {
                             %>

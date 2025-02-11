@@ -12,7 +12,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import config.EnvConfig;
 import dao.AdvertisementDao;
 import dao.ProductDAO;
 import dao.TimesaleDAO;
@@ -29,6 +31,10 @@ public class homeServlet extends HttpServlet {
             throws ServletException, IOException {
     
     System.out.println("HomeServlet: データ取得開始");
+    
+    HttpSession session = request.getSession();
+    String advertisementPath = EnvConfig.get("ADVERTISEMENT_IMG_PATH");
+    session.setAttribute("advertisementPath", advertisementPath);
 
     // DAOの初期化
     AdvertisementDao adDao = new AdvertisementDao();
@@ -115,7 +121,7 @@ public class homeServlet extends HttpServlet {
         System.out.println("HomeServlet: JSPにフォワードします");
 
         // JSPにフォワード
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/home.jsp");
+        RequestDispatcher dispatcher = request.getRequestDispatcher("Home.jsp");
         dispatcher.forward(request, response);
 
     } catch (Exception e) {
