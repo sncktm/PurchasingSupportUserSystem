@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap">
     <link rel="stylesheet" href="css/style.css?v=1.0">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8pfuMfdXssPxTbdqtaiKpqN7IvYR5Abo&libraries=places"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         let map;
         let userMarker;
@@ -27,7 +28,6 @@
             map = new google.maps.Map(document.getElementById("map"), {
                 center: defaultLocation,
                 zoom: 12,
-                
             });
 
             distanceMatrix = new google.maps.DistanceMatrixService();
@@ -41,10 +41,10 @@
             document.getElementById("detail-name").textContent = name;
             document.getElementById("detail-maker").textContent = maker;
             document.getElementById("detail-classification").textContent = classification;
-        	document.getElementById("detail-price").innerHTML = price.isTimeSale ?
-                    `<span class="time-sale">タイムセール中!</span><br>
-     <span class="original-price">${price.original}円</span> ${price.timeSale}円` :
-     `${price.original}円`;
+            document.getElementById("detail-price").innerHTML = price.isTimeSale ?
+                `<span class="time-sale">タイムセール中!</span><br>
+                 <span class="original-price">${price.original}円</span> ${price.timeSale}円` :
+                `${price.original}円`;
             document.getElementById("detail-jan").textContent = janCode;
             document.getElementById("detail-store").textContent = storeName;
 
@@ -74,26 +74,28 @@
                     userMarker = new google.maps.Marker({
                         position: userLocation,
                         map: map,
-                    	title: "現在地",
-                    });	icon: {
-                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                    }
-                                        });
+                        title: "現在地",
+                        icon: {
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                        }
+                    });
                     fitBounds(userLocation, storeLocation);
                 });
             } else {
                 fitBounds(null, storeLocation);
             }
 
-         // タイムセール終了時間の表示
-         const timeSaleEndElement = document.getElementById("detail-time-sale-end");
-         if (price.isTimeSale && timeSaleEndTime) {
-        	 timeSaleEndElement.style.display = "block";
-        	 timeSaleEndElement.querySelector("span").textContent = timeSaleEndTime;
-         } else {
-        	 timeSaleEndElement.style.display = "none";
-         }
-         
+            // タイムセール終了時間の表示
+            const timeSaleEndElement = document.getElementById("detail-time-sale-end");
+            if (price.isTimeSale && timeSaleEndTime) {
+                timeSaleEndElement.style.display = "block";
+                timeSaleEndElement.querySelector(".detail-time-sale-end-span").textContent = timeSaleEndTime;
+            } else {
+                timeSaleEndElement.style.display = "none";
+            }
+
+            // 地図と詳細情報にスクロール
+            document.getElementById("details-container").scrollIntoView({ behavior: 'smooth' });
         }
 
         function fitBounds(userLocation, storeLocation) {
@@ -177,10 +179,10 @@
                 calculateDistances(); // 距離計算と並び替えを行う
             } else if (sortOption === 'price-asc') {
                 sortByPrice();
-            }else if (sortOption === 'name-asc') {
-            	sortByNameAsc();
+            } else if (sortOption === 'name-asc') {
+                sortByNameAsc();
             } else if (sortOption === 'name-desc') {
-            sortByNameDesc();
+                sortByNameDesc();
             }
         }
 
@@ -195,39 +197,36 @@
             goods.forEach(item => goodsList.appendChild(item));
         }
 
-
         function sortByNameAsc() {
-        	const goodsList = document.querySelector('.goods-grid');
-        	const goods = Array.from(goodsList.children);
-        	goods.sort((a, b) => {
-        	const nameA = a.querySelector('h3').textContent;
-        	const nameB = b.querySelector('h3').textContent;
-        	return nameA.localeCompare(nameB);
-        	});
-        	goods.forEach(item => goodsList.appendChild(item));
-        	}
-        	function sortByNameDesc() {
-        	const goodsList = document.querySelector('.goods-grid');
-        	const goods = Array.from(goodsList.children);
-        	goods.sort((a, b) => {
-        	const nameA = a.querySelector('h3').textContent;
-        	const nameB = b.querySelector('h3').textContent;
-        	return nameB.localeCompare(nameA);
-        	});
-        	goods.forEach(item => goodsList.appendChild(item));
-        	}
-        			
-        
+            const goodsList = document.querySelector('.goods-grid');
+            const goods = Array.from(goodsList.children);
+            goods.sort((a, b) => {
+                const nameA = a.querySelector('h3').textContent;
+                const nameB = b.querySelector('h3').textContent;
+                return nameA.localeCompare(nameB);
+            });
+            goods.forEach(item => goodsList.appendChild(item));
+        }
+
+        function sortByNameDesc() {
+            const goodsList = document.querySelector('.goods-grid');
+            const goods = Array.from(goodsList.children);
+            goods.sort((a, b) => {
+                const nameA = a.querySelector('h3').textContent;
+                const nameB = b.querySelector('h3').textContent;
+                return nameB.localeCompare(nameA);
+            });
+            goods.forEach(item => goodsList.appendChild(item));
+        }
+
         // ページ読み込み時に現在地を取得
         window.onload = function() {
             initMap();
             getUserLocation();
             sortGoods(); // 並び替えを適用
         };
-
-	
-</script>
         
+    </script>
 
     <style>
         body {
@@ -372,167 +371,477 @@
             #details-container {
                 flex: 1;
             }
-        	
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: black;
+            float: left;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+        }
+        .pagination a.active {
+            background-color: #4CAF50;
+            color: white;
+            border: 1px solid #4CAF50;
+        }
+        .pagination a:hover:not(.active) {background-color: #ddd;}
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        
+        
+        /* 商品情報 */
+        .product-image {
+		    position: relative;
+		}
+		
+		.product-image img {
+		    width: 100%;
+		    height: 300px;
+		    object-fit: cover;
+		    border-radius: 0.5rem;
+		}
+		
+		.sale-badge {
+		    position: absolute;
+		    top: 1rem;
+		    right: 1rem;
+		    background-color: #ef4444;
+		    color: white;
+		    padding: 0.5rem 1rem;
+		    border-radius: 9999px;
+		    font-weight: bold;
+		    animation: pulse 2s infinite;
+		}
+		.product-info {
+		    margin-top: 2rem;
+		}
+		
+		#detail-name {
+		    font-size: 1.875rem;
+		    font-weight: bold;
+		    color: #1f2937;
+		}
+		
+		.info-list {
+			background: #f9fafb;
+			border-radius: 5px;
+			padding: 15px;
+		    margin-top: 1.5rem;
+		    display: flex;
+		    flex-direction: column;
+		    gap: 1rem;
+		}
+		
+		.info-item {
+		    display: flex;
+		    align-items: center;
+		    gap: 0.5rem;
+		    color: #4b5563;
+		}
+		
+		.info-item i {
+		    width: 1.25rem;
+		    height: 1.25rem;
+		}
+		
+		.info-item .label {
+		    font-weight: 500;
+		}
+		
+		/* 価格表示 */
+		.price {
+		    margin-top: 2rem;
+		    display: flex;
+		    align-items: baseline;
+		    gap: 0.5rem;
+		}
+		.detail-time-sale-end-span{
+			margin: auto;
+		}
+		
+		
+		/* リストボタン */
+		.register-button {
+		    margin-top: 2rem;
+		    width: 100%;
+		    background-color: #2563eb;
+		    color: white;
+		    padding: 0.75rem 1.5rem;
+		    border-radius: 0.5rem;
+		    font-weight: 500;
+		    transition: background-color 0.2s;
+		    border: none;
+		    cursor: pointer;
+		}
+		
+		.register-button:hover {
+		    background-color: #1d4ed8;
+		}
+		
+		/* モーダル */
+		.modal {
+		  display: none;
+		  position: fixed;
+		  top: 0;
+		  left: 0;
+		  width: 100%;
+		  height: 100%;
+		  background-color: rgba(0, 0, 0, 0.5);
+		  justify-content: center;
+		  align-items: center;
+		  z-index: 1000;
+		}
+		
+		.modal-content {
+		  background-color: white;
+		  padding: 2rem;
+		  border-radius: 0.5rem;
+		  width: 90%;
+		  max-width: 500px;
+		}
+		
+		.modal-content h2 {
+		  font-size: 1.5rem;
+		  font-weight: bold;
+		  color: #1f2937;
+		  margin-bottom: 1rem;
+		}
+		
+		/* リスト選択 */
+		.list-register{
+			text-align: center;
+		}
+		.list-selection {
+		  display: flex;
+		  flex-direction: column;
+		  gap: 0.5rem;
+		}
+		
+		.list-selection li {
+		  width: 100%;
+		  padding: 0.75rem;
+		  list-style: none;
+		  text-align: left;
+		  background-color: #f3f4f6;
+		  border: none;
+		  border-radius: 0.25rem;
+		  cursor: pointer;
+		  transition: background-color 0.2s;
+		}
+		
+		.list-selection li:hover {
+		  background-color: #e5e7eb;
+		}
+						
+		/* 完了通知 */
+		.completion {
+		  text-align: center;
+		}
+		
+		.success-icon {
+		  width: 4rem;
+		  height: 4rem;
+		  color: #22c55e;
+		  margin-bottom: 1rem;
+		}
+		
+		.completion-message {
+		  color: #4b5563;
+		  margin: 1rem 0;
+		}
+		
+		.close-btn {
+		  background-color: #2563eb;
+		  color: white;
+		  padding: 0.75rem 1.5rem;
+		  border-radius: 0.25rem;
+		  border: none;
+		  cursor: pointer;
+		  transition: background-color 0.2s;
+		}
+		
+		.close-btn:hover {
+		  background-color: #1d4ed8;
+		}
+		
     </style>
 </head>
 <body>
 <header>
 <div class="header-content">
-    <div class="logo">ろご</div>
+	<div class="logo">
+    	
+    </div>
     <nav>
         <ul class="menu-lists">
-            <li class="menu-list"><img alt="" src="img/homeIcon.png" width="40px" height="40px"><a href="#">ホーム</a></li>
-            <li class="menu-list"><img alt="" src="img/searchIcon.png" width="40px" height="40px"><a href="#">検索</a></li>
-            <li class="menu-list"><img alt="" src="img/mypageIcon.png" width="40px" height="40px"><a href="MyPageServlet">マイページ</a></li>
-            <li class="menu-list"><img alt="" src="img/pointIcon.png" width="40px" height="40px"><a href="#">ポイント</a></li>
+            <li class="menu-list">
+            	<img alt="" src="img/homeIcon.png" width="40px" height="40px">
+                <a href="homeServlet">ホーム</a>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/searchIcon.png" width="40px" height="40px">
+                <a href="#">検索</a>
+                <ul class="dropdown-lists">
+                    <li class="dropdown-list"><a href="StoreSearch">店舗検索</a></li>
+                    <li class="dropdown-list"><a href="goods">商品検索</a></li>
+                </ul>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/mypageIcon.png" width="40px" height="40px">
+                <a href="MyPageServlet">マイページ</a>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/pointIcon.png" width="40px" height="40px">
+                <a href="#">ポイント</a>
+            </li>
         </ul>
     </nav>
+   <ul class="header-lists">
+	   <li class="header-list">
+	   		<img alt="" src="img/notificationIcon.png" width="40px" height="40px">
+	   		<a href="#"></a>
+	   </li>
+	   <li class="header-list">
+	   		<img alt="" src="img/logoutIcon.png" width="40px" height="40px">
+	   		<a href="#"></a>
+	   </li>
+    </ul>
 </div>
 </header>
 
 <div class="container">
-    <h1>商品検索</h1>
+	<h1>商品検索</h1>
+	
+	<form id="searchForm" action="goods" method="get" class="search-form">
+	    <input type="text" name="keyword" placeholder="商品名を検索" value="${param.keyword}">
+	    <label>
+	        <input type="checkbox" name="showOnlyAvailable" value="true" 
+	               ${param.showOnlyAvailable == 'true' ? 'checked' : ''}> 販売中のみ表示
+	    </label>
+	    <label>
+	        <input type="checkbox" name="showOnlySale" value="true" 
+	               ${param.showOnlySale == 'true' ? 'checked' : ''}> セール中のみ表示
+	    </label>
+	    <input type="hidden" name="sortOption" value="${param.sortOption}">
+	    <button type="submit">検索</button>
+	</form>
 
-    <form id="searchForm" action="goods" method="get" class="search-form">
-        <input type="text" name="keyword" placeholder="商品名を検索" value="${param.keyword}">
-        <label>
-            <input type="checkbox" name="showOnlyAvailable" value="true" 
-                   ${param.showOnlyAvailable == 'true' ? 'checked' : ''}> 販売中のみ表示
-        </label>
-        <label>
-            <input type="checkbox" name="showOnlySale" value="true" 
-                   ${param.showOnlySale == 'true' ? 'checked' : ''}> セール中のみ表示
-        </label>
-        <input type="hidden" name="sortOption" value="${param.sortOption}">
-        <button type="submit">検索</button>
-    </form>
+	<form id="sortForm" action="goods" method="get">
+	    <input type="hidden" name="keyword" value="${param.keyword}">
+	    <input type="hidden" name="showOnlyAvailable" value="${param.showOnlyAvailable}">
+	    <input type="hidden" name="showOnlySale" value="${param.showOnlySale}">
+	    <div class="sort-options">
+	        <label for="sort-select">並び替え:</label>
+	        <select id="sort-select" name="sortOption" onchange="this.form.submit()">
+	            <option value="distance-asc" ${param.sortOption == 'distance-asc' ? 'selected' : ''}>現在地から近い順</option>
+	            <option value="price-asc" ${param.sortOption == 'price-asc' ? 'selected' : ''}>価格が安い順</option>
+	            <option value="name-asc" ${param.sortOption == 'name-asc' ? 'selected' : ''}>商品名 昇順</option>
+	            <option value="name-desc" ${param.sortOption == 'name-desc' ? 'selected' : ''}>商品名 降順</option>
+	        </select>
+	    </div>
+	</form>
 
-    <form id="sortForm" action="goods" method="get">
-        <input type="hidden" name="keyword" value="${param.keyword}">
-        <input type="hidden" name="showOnlyAvailable" value="${param.showOnlyAvailable}">
-        <input type="hidden" name="showOnlySale" value="${param.showOnlySale}">
-        <div class="sort-options">
-            <label for="sort-select">並び替え:</label>
-            <select id="sort-select" name="sortOption" onchange="this.form.submit()">
-                <option value="distance-asc" ${param.sortOption == 'distance-asc' ? 'selected' : ''}>現在地から近い順</option>
-                <option value="price-asc" ${param.sortOption == 'price-asc' ? 'selected' : ''}>価格が安い順</option>
-                <option value="name-asc" ${param.sortOption == 'name-asc' ? 'selected' : ''}>商品名 昇順</option>
-                <option value="name-desc" ${param.sortOption == 'name-desc' ? 'selected' : ''}>商品名 降順</option>
-            </select>
+	<div class="content-wrapper">
+ 		<div id="goods-list">
+ 			<div class="goods-grid">
+				 <%
+				     GoodsArrayBeans goodsArray = (GoodsArrayBeans) request.getAttribute("goodsArray");
+				     if (goodsArray != null) {
+				         List<GoodsBeans> goodsList = goodsArray.getGoodsArray();
+				         String sortOption = request.getParameter("sortOption");
+				
+				         if (goodsList.isEmpty()) {
+				 %>
+				     <p>該当する商品が見つかりません。</p>
+				 <%
+				         } else {
+				             for (GoodsBeans goods : goodsList) {
+				                 String status = "";
+				                 String statusClass = "black";
+				
+				                 if ("1".equals(goods.getSales_Flag())) {
+				                     if (goods.getOpening_Time() != null && goods.getClosing_Time() != null) {
+				                         java.time.LocalTime now = java.time.LocalTime.now();
+				                         if (now.isAfter(goods.getOpening_Time().toLocalTime()) &&
+				                             now.isBefore(goods.getClosing_Time().toLocalTime())) {
+				                             status = goods.isTimeSale() ? "タイムセール中" : "販売中";
+				                             statusClass = "red";
+				                         } else {
+				                             status = "店舗閉店中";
+				                             statusClass = "black";
+				                         }
+				                     }
+				                 } else {
+				                     status = "販売停止";
+				                     statusClass = "gray";
+				                 }
+				
+				                 String timeSaleEndTime = "";
+				                 if (goods.isTimeSale() && goods.getTimeSaleEndTime() != null) {
+				                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+				                     timeSaleEndTime = goods.getTimeSaleEndTime().format(formatter);
+				                 }
+				 %>
+				 <div class="goods" onclick="updateDetails(
+				         '<%= goods.getGoods_Name() %>',
+				         '<%= goods.getGoods_Maker() %>',
+				         '<%= goods.getClassification() %>',
+				         { original: <%= goods.getSales_Price() %>, timeSale: <%= goods.getTimeSalePrice() %>, isTimeSale: <%= goods.isTimeSale() %> },
+				         '<%= goods.getJAN_code() %>',
+				         '<%= goods.getStore_Name() %>',
+				         '<%= status %>',
+				         '<%= statusClass %>',
+				         <%= goods.getLatitude() %>,
+				         <%= goods.getLongitude() %>,
+				         '<%= goods.getImage() %>',
+				         '<%= timeSaleEndTime %>'
+				     )">
+				     <img src="<%= goods.getImage() %>" alt="<%= goods.getGoods_Name() %>">
+				     <h3><%= goods.getGoods_Name() %></h3>
+				     <p class="store-name"><%= goods.getStore_Name() %></p>
+				     <p class="price">
+				         <% if (goods.isTimeSale()) { %>
+				             <span class="time-sale">タイムセール中!</span><br>
+				             <span class="original-price"><%= goods.getSales_Price() %>円</span>
+				             <%= goods.getTimeSalePrice() %>円
+				         <% } else { %>
+				             <%= goods.getSales_Price() %>円
+				         <% } %>
+				     </p>
+				     <p class="status <%= statusClass %>"><%= status %></p>
+				     <p class="distance" data-lat="<%= goods.getLatitude() %>" data-lon="<%= goods.getLongitude() %>">距離計算中...</p>
+				     <% if (goods.isTimeSale()) { %>
+				         <p class="time-sale-end">セール終了: <%= timeSaleEndTime %></p>
+				     <% } %>
+ 				</div>
+				<%
+				            }
+				        }
+				    }
+				%>
+ 			</div>
         </div>
-    </form>
 
-    <div class="content-wrapper">
-        <div id="goods-list">
-            <div class="goods-grid">
-                <%
-                    GoodsArrayBeans goodsArray = (GoodsArrayBeans) request.getAttribute("goodsArray");
-                    if (goodsArray != null) {
-                        List<GoodsBeans> goodsList = goodsArray.getGoodsArray();
-                        String sortOption = request.getParameter("sortOption");
+		<div id="details-container">
+			<div id="map-container">
+			    <div id="map"></div>
+			</div>
 
-                        if (goodsList.isEmpty()) {
-                %>
-                    <p>該当する商品が見つかりません。</p>
-                <%
-                        } else {
-                            for (GoodsBeans goods : goodsList) {
-                                String status = "";
-                                String statusClass = "black";
-
-                                if ("1".equals(goods.getSales_Flag())) {
-                                    if (goods.getOpening_Time() != null && goods.getClosing_Time() != null) {
-                                        java.time.LocalTime now = java.time.LocalTime.now();
-                                        if (now.isAfter(goods.getOpening_Time().toLocalTime()) &&
-                                            now.isBefore(goods.getClosing_Time().toLocalTime())) {
-                                            status = goods.isTimeSale() ? "タイムセール中" : "販売中";
-                                            statusClass = "red";
-                                        } else {
-                                            status = "店舗閉店中";
-                                            statusClass = "black";
-                                        }
-                                    }
-                                } else {
-                                    status = "販売停止";
-                                    statusClass = "gray";
-                                }
-
-                                String timeSaleEndTime = "";
-                                if (goods.isTimeSale() && goods.getTimeSaleEndTime() != null) {
-                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-                                    timeSaleEndTime = goods.getTimeSaleEndTime().format(formatter);
-                                }
-                %>
-                <div class="goods" onclick="updateDetails(
-                        '<%= goods.getGoods_Name() %>',
-                        '<%= goods.getGoods_Maker() %>',
-                        '<%= goods.getClassification() %>',
-                        { original: <%= goods.getSales_Price() %>, timeSale: <%= goods.getTimeSalePrice() %>, isTimeSale: <%= goods.isTimeSale() %> },
-                        '<%= goods.getJAN_code() %>',
-                        '<%= goods.getStore_Name() %>',
-                        '<%= status %>',
-                        '<%= statusClass %>',
-                        <%= goods.getLatitude() %>,
-                        <%= goods.getLongitude() %>,
-                        '<%= goods.getImage() %>',
-                        '<%= timeSaleEndTime %>'
-                    )">
-                    <img src="<%= goods.getImage() %>" alt="<%= goods.getGoods_Name() %>">
-                    <h3><%= goods.getGoods_Name() %></h3>
-                    <p class="store-name"><%= goods.getStore_Name() %></p>
-                    <p class="price">
-                        <% if (goods.isTimeSale()) { %>
-                            <span class="time-sale">タイムセール中!</span><br>
-                            <span class="original-price"><%= goods.getSales_Price() %>円</span>
-                            <%= goods.getTimeSalePrice() %>円
-                        <% } else { %>
-                            <%= goods.getSales_Price() %>円
-                        <% } %>
-                    </p>
-                    <p class="status <%= statusClass %>"><%= status %></p>
-                    <p class="distance" data-lat="<%= goods.getLatitude() %>" data-lon="<%= goods.getLongitude() %>">距離計算中...</p>
-                    <% if (goods.isTimeSale()) { %>
-                        <p class="time-sale-end">セール終了: <%= timeSaleEndTime %></p>
-                    <% } %>
-                </div>
-                <%
-                            }
-                        }
-                    }
-                %>
-            </div>
-        </div>
-
-        <div id="details-container">
-            <div id="map-container">
-                <div id="map"></div>
-            </div>
-
-
-            <div id="details">
-                <img id="detail-image" src="/placeholder.svg" alt="商品画像" style="width: 100%; max-width: 300px; height: auto; margin-bottom: 20px;">
-                <p><strong>商品名:</strong> <span id="detail-name"></span></p>
-                <p><strong>メーカー:</strong> <span id="detail-maker"></span></p>
-                <p><strong>分類:</strong> <span id="detail-classification"></span></p>
-                <p><strong>価格:</strong> <span id="detail-price"></span></p>
-                <p><strong>JANコード:</strong> <span id="detail-jan"></span></p>
-                <p><strong>店舗名:</strong> <span id="detail-store"></span></p>
-                <p><strong>販売状態:</strong> <span id="detail-status" class="status"></span></p>
-                <p id="detail-time-sale-end" style="display: none;"><strong>セール終了:</strong> <span></span></p>
-                <button class="register-button" id="register-button">リストに登録</button>
-                
-                <div class="list-register" id="list-register">
-				    <h3>リスト</h3>
-				    <ul id="list-container">
-				        <!-- ここにリスト-->
-				    </ul>
-				    <button onclick="closePopup()">閉じる</button>
+			<div id="details">
+            	<div class="product-image">
+					<img id="detail-image" src="/placeholder.svg" alt="商品画像">
 				</div>
-				                
-             </div>
+				
+				<div class="product-info">
+					<span id="detail-name"></span> <!-- 商品名 -->
+					
+					<div class="info-price">
+				    	<span id="detail-price"></span>
+					</div>
+					
+	                <div class="info-list">
+					    <div class="info-item">
+					        <i data-lucide="building-2"></i>
+					        <span class="label">メーカー:</span>
+					        <span id="detail-maker"></span>
+					    </div>
+					
+					    <div class="info-item">
+					        <i data-lucide="tag"></i>
+					        <span class="label">分類:</span>
+					        <span id="detail-classification"></span>
+					    </div>
+					
+					    <div class="info-item">
+					        <i data-lucide="package"></i>
+					        <span class="label">JANコード:</span>
+					        <span id="detail-jan"></span>
+					    </div>
+					
+					    <div class="info-item">
+					        <i data-lucide="map-pin"></i>
+					        <span class="label">店舗:</span>
+					        <span id="detail-store"></span>
+					    </div>
+					    
+					    <div class="info-item">
+					        <i data-lucide="shopping-basket"></i>
+					        <span class="label">販売状態:</span>
+					        <span id="detail-status" class="status"></span>
+					    </div>
+					
+					    <div id="detail-time-sale-end" class="info-item" style="display: none;">
+					        <i data-lucide="clock"></i>
+					        <span class="label">セール終了:</span>
+					        <span class="detail-time-sale-end-span"></span>
+					    </div>
+					</div>
+				</div>
+	
+				
+				<button class="register-button" id="register-button">リストに登録</button>
+               
+                
+            </div>
         </div>
-        
+    </div>
+    
+    <!-- リスト選択モーダル -->
+    <div class="modal" id="list-register">
+       	<div class="modal-content list-register">
+       		<h2>リストを選択</h2>
+			<ul id="list-container" class="list-selection">
+    			<!-- ここにリスト-->
+			</ul>
+			<button onclick="closePopup()" class="close-btn">閉じる</button>
+		</div>
+	</div>
+    
+     <!-- 完了通知モーダル -->
+    <div id="completionModal" class="modal">
+      <div class="modal-content completion">
+      
+        <h2>リストに追加しました</h2>
+        <p class="completion-message">選択したリストに商品を追加しました。</p>
+        <button onclick="closeCompletionModal()" class="close-btn">
+          閉じる
+        </button>
+      </div>
+    </div>
+    
+
+    <!-- ページネーション -->
+    <div class="pagination">
+        <%
+            Integer currentPageObj = (Integer) request.getAttribute("currentPage");
+            Integer totalPagesObj = (Integer) request.getAttribute("totalPages");
+            int currentPage = (currentPageObj != null) ? currentPageObj : 1;
+            int totalPages = (totalPagesObj != null) ? totalPagesObj : 1;
+            String keyword = (String) request.getAttribute("keyword");
+            String showOnlyAvailable = (String) request.getAttribute("showOnlyAvailable");
+            String showOnlySale = (String) request.getAttribute("showOnlySale");
+            String sortOption = (String) request.getAttribute("sortOption");
+
+            for (int i = 1; i <= totalPages; i++) {
+                String pageUrl = "goods?page=" + i;
+                if (keyword != null) pageUrl += "&keyword=" + keyword;
+                if (showOnlyAvailable != null) pageUrl += "&showOnlyAvailable=" + showOnlyAvailable;
+                if (showOnlySale != null) pageUrl += "&showOnlySale=" + showOnlySale;
+                if (sortOption != null) pageUrl += "&sortOption=" + sortOption;
+        %>
+            <a href="<%= pageUrl %>" <%= (i == currentPage) ? "class='active'" : "" %>><%= i %></a>
+        <%
+            }
+        %>
     </div>
 </div>
 <script>
@@ -541,6 +850,7 @@
 const registerButton = document.getElementById('register-button');
 const listRegister = document.getElementById('list-register');
 const listContainer = document.getElementById('list-container');
+const completionModal = document.getElementById('completionModal');
 
 
 //リストに登録ボタンがクリックされた場合
@@ -559,6 +869,7 @@ registerButton.addEventListener('click', () => {
             listItem.textContent = item.List_Name; // List_Nameを表示
             listItem.setAttribute('data-list-no', item.List_No); // List_No をデータ属性に設定
             listContainer.appendChild(listItem); // listContainerに追加
+            
 
             // listItemがクリックされた時に送信する処理
             listItem.addEventListener('click', () => {
@@ -567,7 +878,7 @@ registerButton.addEventListener('click', () => {
                 sendListNoToServer(listNo); // サーバーにList_Noを送信
             });
         });
-        listRegister.style.display = 'block';
+        listRegister.style.display = "flex";
     })
     .catch(error => {
         console.error('Error:', error);
@@ -594,12 +905,23 @@ function sendListNoToServer(listNo) {
     .then(data => {
         console.log('サーバーからのレスポンス:', data);
         console.log("登録したよん");
+        listRegister.style.display = "none";
+        completionModal.style.display = "flex";
     })
     .catch(error => {
         console.error('Error sending List_No:', error);
     });
 }
+
+//完了モーダルを閉じる
+function closeCompletionModal() {
+  completionModal.style.display = "none";
+}
 </script>
+<script>
+        // Lucide Icons を初期化して描画
+        lucide.createIcons();
+    </script>
 </body>
 </html>
 

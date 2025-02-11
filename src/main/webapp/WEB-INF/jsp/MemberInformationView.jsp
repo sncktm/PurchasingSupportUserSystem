@@ -185,17 +185,21 @@ button:active {
 <header>
 <div class="header-content">
 	<div class="logo">
-    	ろご
+    	
     </div>
     <nav>
         <ul class="menu-lists">
             <li class="menu-list">
             	<img alt="" src="img/homeIcon.png" width="40px" height="40px">
-                <a href="#">ホーム</a>
+                <a href="homeServlet">ホーム</a>
             </li>
             <li class="menu-list">
             	<img alt="" src="img/searchIcon.png" width="40px" height="40px">
                 <a href="#">検索</a>
+                <ul class="dropdown-lists">
+                    <li class="dropdown-list"><a href="StoreSearch">店舗検索</a></li>
+                    <li class="dropdown-list"><a href="goods">商品検索</a></li>
+                </ul>
             </li>
             <li class="menu-list">
             	<img alt="" src="img/mypageIcon.png" width="40px" height="40px">

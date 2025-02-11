@@ -3,25 +3,38 @@
 package model;
 
 import java.sql.Date;
+import java.util.List;
 
 public class ListInfoBeans {
 	private String List_No;
     private String Members_No;
     private String List_Name;
 	private Date List_Date;
+	private List<SalesDataBeans> ListGoodsBeans;
 	
 
-    public ListInfoBeans(String List_No, String Members_No,String List_Name,Date List_Date) {
+    public ListInfoBeans(String List_No, String Members_No,String List_Name,Date List_Date, List<SalesDataBeans> ListGoodsBeans) {
         this.List_No = List_No;
         this.Members_No = Members_No;
         this.List_Name = List_Name;
         this.List_Date = List_Date;
+        this.ListGoodsBeans = ListGoodsBeans;
     }
 
     
 //	public ListInfoBeans() {
 //		// TODO 自動生成されたコンストラクター・スタブ
 //	}
+
+
+	public List<SalesDataBeans> getSalesDataBeans() {
+		return ListGoodsBeans;
+	}
+
+
+	public void setSalesDataBeans(List<SalesDataBeans> salesDataBeans) {
+		ListGoodsBeans = salesDataBeans;
+	}
 
 
 	public String getList_No() {

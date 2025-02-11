@@ -45,7 +45,7 @@ public class MemberLoginServlet extends HttpServlet {
 			dispatcher.forward(request, response);
 		}else {
 			request.setAttribute("errorMsg", "メールアドレスまたはパスワードが異なります。");
-			RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/LoginMismatch.jsp");
+			RequestDispatcher dispatcher = request.getRequestDispatcher("MemberLogin.jsp");
 			dispatcher.forward(request, response);
 		}
 	}

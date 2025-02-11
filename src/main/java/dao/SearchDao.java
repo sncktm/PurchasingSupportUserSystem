@@ -5,8 +5,13 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.TextStyle;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 import model.GoodsArrayBeans;
 import model.GoodsBeans;
@@ -31,84 +36,71 @@ public class SearchDao {
         return DriverManager.getConnection(URL, DB_USER, DB_PASS);
     }
 
-    public GoodsArrayBeans getAllGoods(boolean showOnlyAvailable, String sortOption) throws SQLException {
+    public GoodsArrayBeans getAllGoods(boolean showOnlyAvailable) throws SQLException {
         GoodsArrayBeans goodsArray = new GoodsArrayBeans();
-        LocalTime now = LocalTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         String sql = "SELECT g.JAN_code, g.Goods_Name, g.Goods_Maker, g.Classification, " +
                      "s.Sales_No, s.Sales_Price, s.Image, s.Sales_Flag, " +
                      "st.Store_No, st.Store_Name, st.Opening_Time, st.Closing_Time, " +
-                     "st.Latitude, st.Longitude " +
-                     "FROM goods g " +
-                     "LEFT JOIN sales s ON g.JAN_code = s.JAN_Code " +
-                     "LEFT JOIN store st ON s.Store_No = st.Store_No";
+                     "st.Latitude, st.Longitude, " +
+                     "ts.Time_Sale_No, ts.Start_Date, ts.Start_Time, ts.End_Date, ts.End_Time, " +
+                     "ts.Repeat_Pattern, ts.Repeat_Value, ts.Timesale_Application_Flag, " +
+                     "tsg.Time_Sales_Prise, tsg.Timesale_goods_Application_Flag " +
+                     "FROM sales s " +
+                     "INNER JOIN goods g ON g.JAN_code = s.JAN_Code " +
+                     "INNER JOIN store st ON s.Store_No = st.Store_No " +
+                     "LEFT JOIN time_sale_goods tsg ON s.Sales_No = tsg.Sales_No " +
+                     "LEFT JOIN time_sale ts ON tsg.Time_Sale_No = ts.Time_Sale_No ";
 
         if (showOnlyAvailable) {
-            sql += " WHERE s.Sales_Flag = 1 AND ? BETWEEN st.Opening_Time AND st.Closing_Time";
-        }
-
-        if ("price-asc".equals(sortOption)) {
-            sql += " ORDER BY s.Sales_Price ASC";
+            sql += " WHERE s.Sales_Flag = '1' AND " +
+                   "st.Opening_Time IS NOT NULL AND st.Closing_Time IS NOT NULL AND " +
+                   "TIME(?) BETWEEN st.Opening_Time AND st.Closing_Time";
         }
 
         try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
 
             if (showOnlyAvailable) {
-                statement.setTime(1, Time.valueOf(now));
+                statement.setTime(1, java.sql.Time.valueOf(now.toLocalTime()));
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     GoodsBeans goods = new GoodsBeans();
-                    goods.setJAN_code(resultSet.getString("JAN_code"));
-                    goods.setGoods_Name(resultSet.getString("Goods_Name"));
-                    goods.setGoods_Maker(resultSet.getString("Goods_Maker"));
-                    goods.setClassification(resultSet.getString("Classification"));
-                    goods.setSales_No(resultSet.getString("Sales_No"));
-                    goods.setSales_Price(resultSet.getString("Sales_Price"));
-                    goods.setImage(resultSet.getString("Image"));
-                    goods.setSales_Flag(resultSet.getString("Sales_Flag"));
-                    goods.setStore_No(resultSet.getString("Store_No"));
-                    goods.setStore_Name(resultSet.getString("Store_Name"));
-                    goods.setOpening_Time(resultSet.getTime("Opening_Time"));
-                    goods.setClosing_Time(resultSet.getTime("Closing_Time"));
-                    goods.setLatitude(resultSet.getDouble("Latitude"));
-                    goods.setLongitude(resultSet.getDouble("Longitude"));
-
+                    setGoodsBasicInfo(goods, resultSet);
+                    setTimeSaleInfo(goods, resultSet, now);
                     goodsArray.addGoods(goods);
                 }
             }
         }
 
-        return goodsArray;
+        return filterDuplicateSalesNo(goodsArray);
     }
 
-
-
-
-
-
-
-    public GoodsArrayBeans searchGoodsByKeywordAndAvailability(String keyword, boolean showOnlyAvailable, String sortOption) throws SQLException {
+    public GoodsArrayBeans searchGoodsByKeywordAndAvailability(String keyword, boolean showOnlyAvailable) throws SQLException {
         GoodsArrayBeans goodsArray = new GoodsArrayBeans();
-        LocalTime now = LocalTime.now();
+        LocalDateTime now = LocalDateTime.now();
 
         String sql = "SELECT g.JAN_code, g.Goods_Name, g.Goods_Maker, g.Classification, " +
                      "s.Sales_No, s.Sales_Price, s.Image, s.Sales_Flag, " +
                      "st.Store_No, st.Store_Name, st.Opening_Time, st.Closing_Time, " +
-                     "st.Latitude, st.Longitude " +
-                     "FROM goods g " +
-                     "LEFT JOIN sales s ON g.JAN_code = s.JAN_Code " +
-                     "LEFT JOIN store st ON s.Store_No = st.Store_No " +
+                     "st.Latitude, st.Longitude, " +
+                     "ts.Time_Sale_No, ts.Start_Date, ts.Start_Time, ts.End_Date, ts.End_Time, " +
+                     "ts.Repeat_Pattern, ts.Repeat_Value, ts.Timesale_Application_Flag, " +
+                     "tsg.Time_Sales_Prise, tsg.Timesale_goods_Application_Flag " +
+                     "FROM sales s " +
+                     "INNER JOIN goods g ON g.JAN_code = s.JAN_Code " +
+                     "INNER JOIN store st ON s.Store_No = st.Store_No " +
+                     "LEFT JOIN time_sale_goods tsg ON s.Sales_No = tsg.Sales_No " +
+                     "LEFT JOIN time_sale ts ON tsg.Time_Sale_No = ts.Time_Sale_No " +
                      "WHERE g.Goods_Name LIKE ?";
 
         if (showOnlyAvailable) {
-            sql += " AND s.Sales_Flag = 1 AND ? BETWEEN st.Opening_Time AND st.Closing_Time";
-        }
-
-        if ("price-asc".equals(sortOption)) {
-            sql += " ORDER BY s.Sales_Price ASC";
+            sql += " AND s.Sales_Flag = '1' AND " +
+                   "st.Opening_Time IS NOT NULL AND st.Closing_Time IS NOT NULL AND " +
+                   "TIME(?) BETWEEN st.Opening_Time AND st.Closing_Time";
         }
 
         try (Connection connection = getConnection();
@@ -116,70 +108,146 @@ public class SearchDao {
 
             statement.setString(1, "%" + keyword + "%");
             if (showOnlyAvailable) {
-                statement.setTime(2, Time.valueOf(now));
+                statement.setTime(2, java.sql.Time.valueOf(now.toLocalTime()));
             }
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     GoodsBeans goods = new GoodsBeans();
-                    goods.setJAN_code(resultSet.getString("JAN_code"));
-                    goods.setGoods_Name(resultSet.getString("Goods_Name"));
-                    goods.setGoods_Maker(resultSet.getString("Goods_Maker"));
-                    goods.setClassification(resultSet.getString("Classification"));
-                    goods.setSales_No(resultSet.getString("Sales_No"));
-                    goods.setSales_Price(resultSet.getString("Sales_Price"));
-                    goods.setImage(resultSet.getString("Image"));
-                    goods.setSales_Flag(resultSet.getString("Sales_Flag"));
-                    goods.setStore_No(resultSet.getString("Store_No"));
-                    goods.setStore_Name(resultSet.getString("Store_Name"));
-                    goods.setOpening_Time(resultSet.getTime("Opening_Time"));
-                    goods.setClosing_Time(resultSet.getTime("Closing_Time"));
-                    goods.setLatitude(resultSet.getDouble("Latitude"));
-                    goods.setLongitude(resultSet.getDouble("Longitude"));
-
+                    setGoodsBasicInfo(goods, resultSet);
+                    setTimeSaleInfo(goods, resultSet, now);
                     goodsArray.addGoods(goods);
                 }
             }
         }
 
-        return goodsArray;
+        return filterDuplicateSalesNo(goodsArray);
     }
 
+    private void setGoodsBasicInfo(GoodsBeans goods, ResultSet resultSet) throws SQLException {
+        goods.setJAN_code(resultSet.getString("JAN_code"));
+        goods.setGoods_Name(resultSet.getString("Goods_Name"));
+        goods.setGoods_Maker(resultSet.getString("Goods_Maker"));
+        goods.setClassification(resultSet.getString("Classification"));
+        goods.setSales_No(resultSet.getString("Sales_No"));
+        goods.setSales_Price(resultSet.getString("Sales_Price"));
+        goods.setImage(resultSet.getString("Image"));
+        goods.setSales_Flag(resultSet.getString("Sales_Flag"));
+        goods.setStore_No(resultSet.getString("Store_No"));
+        goods.setStore_Name(resultSet.getString("Store_Name"));
+        
+        java.sql.Time openingTime = resultSet.getTime("Opening_Time");
+        goods.setOpening_Time(openingTime != null ? openingTime : null);
+        
+        java.sql.Time closingTime = resultSet.getTime("Closing_Time");
+        goods.setClosing_Time(closingTime != null ? closingTime : null);
+        
+        goods.setLatitude(resultSet.getDouble("Latitude"));
+        goods.setLongitude(resultSet.getDouble("Longitude"));
+    }
 
+    private void setTimeSaleInfo(GoodsBeans goods, ResultSet resultSet, LocalDateTime now) throws SQLException {
+        goods.setTimeSaleNo(resultSet.getInt("Time_Sale_No"));
+        
+        java.sql.Date startDate = resultSet.getDate("Start_Date");
+        if (startDate != null) {
+            goods.setTimeSaleStartDate(startDate.toLocalDate());
+        }
+        
+        java.sql.Time startTime = resultSet.getTime("Start_Time");
+        if (startTime != null) {
+            goods.setTimeSaleStartTime(startTime.toLocalTime());
+        }
+        
+        java.sql.Date endDate = resultSet.getDate("End_Date");
+        if (endDate != null) {
+            goods.setTimeSaleEndDate(endDate.toLocalDate());
+        }
+        
+        java.sql.Time endTime = resultSet.getTime("End_Time");
+        if (endTime != null) {
+            goods.setTimeSaleEndTime(endTime.toLocalTime());
+        }
+        
+        goods.setTimeSalePrice(resultSet.getInt("Time_Sales_Prise"));
+        goods.setTimesaleApplicationFlag(resultSet.getString("Timesale_Application_Flag"));
+        goods.setTimesaleGoodsApplicationFlag(resultSet.getString("Timesale_goods_Application_Flag"));
+        goods.setRepeatPattern(resultSet.getString("Repeat_Pattern"));
+        goods.setRepeatValue(resultSet.getString("Repeat_Value"));
 
-//    public SalesDetail getSalesDetail(String salesNo) throws SQLException {
-//        SalesDetail salesDetail = null;
-//
-//        String sql = "SELECT g.Goods_Name, g.Goods_Maker, g.Classification, " +
-//                     "s.Sales_Price, s.Image, s.Sales_No, st.Store_Name, st.Store_No, g.JAN_code " +
-//                     "FROM goods g " +
-//                     "LEFT JOIN sales s ON g.JAN_code = s.JAN_Code " +
-//                     "LEFT JOIN store st ON s.Store_No = st.Store_No " +
-//                     "WHERE s.Sales_No = ?";
-//
-//        try (Connection connection = getConnection();
-//             PreparedStatement statement = connection.prepareStatement(sql)) {
-//
-//            statement.setString(1, salesNo);
-//
-//            try (ResultSet resultSet = statement.executeQuery()) {
-//                if (resultSet.next()) {
-//                    salesDetail = new SalesDetail();
-//                    salesDetail.setGoods_Name(resultSet.getString("Goods_Name"));
-//                    salesDetail.setGoods_Maker(resultSet.getString("Goods_Maker"));
-//                    salesDetail.setClassification(resultSet.getString("Classification"));
-//                    salesDetail.setSales_Price(resultSet.getString("Sales_Price"));
-//                    salesDetail.setImage(resultSet.getString("Image"));
-//                    salesDetail.setSales_No(resultSet.getString("Sales_No")); // Sales_No を設定
-//                    salesDetail.setStore_Name(resultSet.getString("Store_Name"));
-//                    salesDetail.setStore_No(resultSet.getString("Store_No")); // Store_No を設定
-//                    salesDetail.setJAN_Code(resultSet.getString("JAN_code")); // JANコードを設定
-//                }
-//            }
-//        }
-//
-//        return salesDetail;
-//    }
+        boolean isTimeSale = isTimeSaleActive(goods, now);
+        goods.setIsTimeSale(isTimeSale);
+    }
+
+    private boolean isTimeSaleActive(GoodsBeans goods, LocalDateTime now) {
+        if (!"on".equals(goods.getTimesaleApplicationFlag()) || !"on".equals(goods.getTimesaleGoodsApplicationFlag())) {
+            return false;
+        }
+
+        LocalDate startDate = goods.getTimeSaleStartDate();
+        LocalTime startTime = goods.getTimeSaleStartTime();
+        LocalDate endDate = goods.getTimeSaleEndDate();
+        LocalTime endTime = goods.getTimeSaleEndTime();
+
+        if (startDate == null || startTime == null || endDate == null || endTime == null) {
+            return false;
+        }
+
+        LocalDate currentDate = now.toLocalDate();
+        LocalTime currentTime = now.toLocalTime();
+
+        // Check if current date is within the time sale period
+        if (currentDate.isBefore(startDate) || currentDate.isAfter(endDate)) {
+            return false;
+        }
+
+        // Check if current time is within the time sale hours
+        if (currentTime.isBefore(startTime) || currentTime.isAfter(endTime)) {
+            return false;
+        }
+
+        String repeatPattern = goods.getRepeatPattern();
+        String repeatValue = goods.getRepeatValue();
+
+        if (repeatPattern == null) {
+            return false;
+        }
+
+        switch (repeatPattern) {
+            case "daily":
+                return true; // daily の場合は常に true を返す
+            case "weekly":
+                if (repeatValue == null) return false;
+                String[] activeDays = repeatValue.split(",");
+                String currentDayOfWeek = now.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH).toLowerCase();
+                return Arrays.asList(activeDays).contains(currentDayOfWeek);
+            case "monthly":
+                if (repeatValue == null) return false;
+                String[] activeDates = repeatValue.split(",");
+                int currentDayOfMonth = now.getDayOfMonth();
+                return Arrays.stream(activeDates)
+                    .map(Integer::parseInt)
+                    .anyMatch(date -> date == currentDayOfMonth);
+            default:
+                return false;
+        }
+    }
+
+    private GoodsArrayBeans filterDuplicateSalesNo(GoodsArrayBeans goodsArray) {
+        GoodsArrayBeans filteredArray = new GoodsArrayBeans();
+        goodsArray.getGoodsArray().stream()
+            .collect(Collectors.groupingBy(GoodsBeans::getSales_No))
+            .forEach((salesNo, goods) -> {
+                goods.stream()
+                    .filter(GoodsBeans::isTimeSale)
+                    .findFirst()
+                    .ifPresentOrElse(
+                        filteredArray::addGoods,
+                        () -> filteredArray.addGoods(goods.get(0))
+                    );
+            });
+        return filteredArray;
+    }
 
     
     public StoreArrayBeans getAllStores() throws SQLException {
@@ -281,4 +349,3 @@ public class SearchDao {
 //    }
 
 }
-

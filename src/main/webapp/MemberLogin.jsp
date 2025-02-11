@@ -21,8 +21,7 @@ body{
 	}
 	h1{
 		text-align: center;
-        margin-b
-        ottom: 20px;
+        margin-bottom: 20px;
 	}
 	.group {
           margin-bottom: 15px;
@@ -50,6 +49,7 @@ body{
 </style>
 </head>
 <body>
+
 <div class="login">
 	<h1>ログイン</h1>
 	<form action="MemberLoginServlet" method="post">

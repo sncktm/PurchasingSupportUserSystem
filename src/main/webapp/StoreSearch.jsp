@@ -290,18 +290,45 @@
 </head>
 <body>
 <header>
-    <div class="header-content">
-    <div class="logo">ろご</div>
+<div class="header-content">
+	<div class="logo">
+    	
+    </div>
     <nav>
         <ul class="menu-lists">
-            <li class="menu-list"><img alt="" src="img/homeIcon.png" width="40px" height="40px"><a href="#">ホーム</a></li>
-            <li class="menu-list"><img alt="" src="img/searchIcon.png" width="40px" height="40px"><a href="#">検索</a></li>
-            <li class="menu-list"><img alt="" src="img/mypageIcon.png" width="40px" height="40px"><a href="MyPageServlet">マイページ</a></li>
-            <li class="menu-list"><img alt="" src="img/pointIcon.png" width="40px" height="40px"><a href="#">ポイント</a></li>
+            <li class="menu-list">
+            	<img alt="" src="img/homeIcon.png" width="40px" height="40px">
+                <a href="homeServlet">ホーム</a>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/searchIcon.png" width="40px" height="40px">
+                <a href="#">検索</a>
+                <ul class="dropdown-lists">
+                    <li class="dropdown-list"><a href="StoreSearch">店舗検索</a></li>
+                    <li class="dropdown-list"><a href="goods">商品検索</a></li>
+                </ul>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/mypageIcon.png" width="40px" height="40px">
+                <a href="MyPageServlet">マイページ</a>
+            </li>
+            <li class="menu-list">
+            	<img alt="" src="img/pointIcon.png" width="40px" height="40px">
+                <a href="#">ポイント</a>
+            </li>
         </ul>
     </nav>
+   <ul class="header-lists">
+	   <li class="header-list">
+	   		<img alt="" src="img/notificationIcon.png" width="40px" height="40px">
+	   		<a href="#"></a>
+	   </li>
+	   <li class="header-list">
+	   		<img alt="" src="img/logoutIcon.png" width="40px" height="40px">
+	   		<a href="#"></a>
+	   </li>
+    </ul>
 </div>
-
 </header>
 <div class="container">
     <h1>店舗検索</h1>

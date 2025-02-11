@@ -1,4 +1,6 @@
-@charset "UTF-8";@charset "UTF-8";
+@charset "UTF-8";
+
+/*ユーザーcss*/
  
 :root{
 	--primary-color: #2e75b6;
@@ -27,16 +29,21 @@ main{
 /*共通ボタン*/
 .button {
      	  
-          width: 50%;
+          width: 200px;
           padding: 12px;
           color: white;
-/*          border: none;*/
+          border: none;
           border-radius: 30px;
           cursor: pointer;
           font-size: 16px;
           margin: 20px 0;
           text-decoration: none;
-        }
+		  transition: background-color 0.3s, transform 0.2s;
+		          }
+		  		.button:hover{
+		  			transform: scale(1.05);
+		  		}
+
  
  
 /*確定ボタン(オレンジ)*/
@@ -46,17 +53,39 @@ main{
 .confirmed-button:hover {
       background-color: #e67300;
     }
+
+/*戻るボタン(オレンジ)*/
+.cancel-button{
+	background-color: var(--primary-color);
+}
+.cancel-button:hover {
+      background-color: #004d80;
+    }
     
  
  
 	
 /*ヘッダー*/
-header{
-	background-color: #fff;
-	width: 100%;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	border-bottom: 2px solid var(--primary-color);
+/*header{*/
+/*	background-color: #fff;*/
+/*	width: 100%;*/
+/*	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);*/
+/*	border-bottom: 2px solid var(--primary-color);*/
+/*	position: -webkit-sticky;*/
+/*			  position: sticky;*/
+/*			  top: 0;*/
+/*}*/
+header {
+  background-color: #fff;
+  width: 100%;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* 影を強めにして浮かせる */
+  border-bottom: 2px solid var(--primary-color);
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 9999; /* 高い値で最前面に */
 }
+
 .header-content{
 	display: flex;
 	justify-content: center;
@@ -112,7 +141,41 @@ nav{
     filter: brightness(0) invert(1);
     transition: filter 0.3s ease;
 }
- 
+.dropdown-lists {
+  display: none;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  background-color: #004d80;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.menu-list:hover .dropdown-lists {
+  display: block;
+}
+
+.dropdown-list {
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+  border-top: 1px solid #3492d1;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-list a {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-list:hover {
+  background-color: #003558;
+}
  
 .header-lists{
   display: flex;

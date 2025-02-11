@@ -2,29 +2,30 @@ package model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GoodsArrayBeans implements Serializable {
-    private ArrayList<GoodsBeans> goodsArray;
+    private List<GoodsBeans> goodsArray;
 
     public GoodsArrayBeans() {
         goodsArray = new ArrayList<>();
     }
 
+    // 新しいコンストラクタを追加
+    public GoodsArrayBeans(List<GoodsBeans> goodsList) {
+        this.goodsArray = goodsList;
+    }
+
+    // 既存のメソッド
     public void addGoods(GoodsBeans goods) {
         goodsArray.add(goods);
     }
 
-    public int getArraySize() {
-        return goodsArray.size();
-    }
-
-    public ArrayList<GoodsBeans> getGoodsArray() {
+    public List<GoodsBeans> getGoodsArray() {
         return goodsArray;
     }
 
-    public void setGoodsArray(ArrayList<GoodsBeans> goodsArray) {
+    public void setGoodsArray(List<GoodsBeans> goodsArray) {
         this.goodsArray = goodsArray;
     }
 }
-
-

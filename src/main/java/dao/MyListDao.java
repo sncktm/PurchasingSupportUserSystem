@@ -17,50 +17,50 @@ public class MyListDao {
 	private  final String URL = "jdbc:mysql://localhost:3306/purchasing_support_system_DB";
     private  final String DB_USER = "root";
     private  final String DB_PASS = "mysql";
-//    private  final String DB_PASS = "srei31003100";
 
     // リスト情報を取得するメソッド
-	    public List<ListInfoBeans> getListArray(String list_No) {
-	    	
-	    	
-	        List<ListInfoBeans> listArray = new ArrayList<ListInfoBeans>();
-	        System.out.println(list_No);
-	        try {
-				Class.forName("com.mysql.cj.jdbc.Driver");
-			} catch(ClassNotFoundException e) {
-				throw new IllegalStateException ("JDBCドライバを読み込めませんでした");
-			}
-	        	try (Connection conn = DriverManager.getConnection(URL, DB_USER, DB_PASS)){
-	        	String sql = "SELECT * FROM list WHERE Members_No = ?";
-	
-	        	
-	        	PreparedStatement stmt = conn.prepareStatement(sql);
-	        	stmt.setString(1, list_No);
-	        	
-	        	
-	        	try(ResultSet rs = stmt.executeQuery()){
-	
-	        		while (rs.next()) {
-	            	
-		            	String List_No = rs.getString("List_No");
-		            	String Members_No = rs.getString("Members_No");
-		            	String List_Name = rs.getString("List_Name");
-		            	Date List_Date = rs.getDate("List_Date");
-		
-		            	ListInfoBeans infobean = new ListInfoBeans(List_No,Members_No,List_Name,List_Date);
-		            	listArray.add(infobean);
-	        		}
-	            }
-	
-	        } catch (SQLException e) {
-	            e.printStackTrace(); // デバッグ用にログ出力
-	            throw new RuntimeException("リスト情報の取得中にエラーが発生しました: " + e.getMessage());
-	        }
-	
-	        return listArray;
-	    }
-	    
+    
+    public List<ListInfoBeans> FindAll(String list_No) {
+    	
+    	List<ListInfoBeans> listArray = new ArrayList<ListInfoBeans>();
+    	
+    	try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch(ClassNotFoundException e) {
+			throw new IllegalStateException ("JDBCドライバを読み込めませんでした");
+		}
+        	try (Connection conn = DriverManager.getConnection(URL, DB_USER, DB_PASS)){
+        	String sql = "SELECT * FROM list WHERE Members_No = ?";
 
+        	PreparedStatement stmt = conn.prepareStatement(sql);
+        	stmt.setString(1, list_No);
+        	
+        	
+        	try(ResultSet rs = stmt.executeQuery()){
+
+        		while (rs.next()) {
+            	
+	            	String List_No = rs.getString("List_No");
+	            	String Members_No = rs.getString("Members_No");
+	            	String List_Name = rs.getString("List_Name");
+	            	Date List_Date = rs.getDate("List_Date");
+	            	
+	            	List<SalesDataBeans> listgoods = getSalesDataByListNo(List_No);
+	            	
+	            	ListInfoBeans infobean = new ListInfoBeans(List_No,Members_No,List_Name,List_Date, listgoods);
+	            	listArray.add(infobean);
+        		}
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // デバッグ用にログ出力
+            throw new RuntimeException("リスト情報の取得中にエラーが発生しました: " + e.getMessage());
+        }
+
+        return listArray;
+  
+    }
+    
 	    public List<SalesDataBeans> getSalesDataByListNo(String listNo) {
 	        List<SalesDataBeans> salesDataList = new ArrayList<SalesDataBeans>();
 	        System.out.println(listNo);
